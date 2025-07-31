@@ -1,6 +1,24 @@
 <?php
 require_once 'config.php';
 
+
+function getRandomMovie() {
+    // First try popular movies (higher chance of good results)
+    $popular = fetchFromTMDB('movie/popular', ['page' => rand(1, 500)]);
+    
+    if (!empty($popular['results'])) {
+        return $popular['results'][array_rand($popular['results'])];
+    }
+    
+    // Fallback to discover if popular fails
+    $discover = fetchFromTMDB('discover/movie', [
+        'page' => rand(1, 500),
+        'include_adult' => false
+    ]);
+    
+    return $discover['results'][array_rand($discover['results'])] ?? null;
+}
+
 function getGenres() {
     $data = fetchFromTMDB('genre/movie/list');
     if (!$data || !isset($data['genres'])) {
