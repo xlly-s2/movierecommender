@@ -1,6 +1,15 @@
 <?php
 require_once 'config.php';
 
+function getGenres() {
+    $data = fetchFromTMDB('genre/movie/list');
+    if (!$data || !isset($data['genres'])) {
+        file_put_contents('debug.log', "Genre fetch failed!\n", FILE_APPEND);
+        return [];
+    }
+    return $data['genres'];
+}
+
 // Function to fetch data from TMDB API
 function fetchFromTMDB($endpoint, $params = []) {
     $params['api_key'] = TMDB_API_KEY;
