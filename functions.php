@@ -1,34 +1,6 @@
 <?php
 require_once 'config.php';
 
-
-function getRandomMovie() {
-    // First try popular movies (higher chance of good results)
-    $popular = fetchFromTMDB('movie/popular', ['page' => rand(1, 500)]);
-    
-    if (!empty($popular['results'])) {
-        return $popular['results'][array_rand($popular['results'])];
-    }
-    
-    // Fallback to discover if popular fails
-    $discover = fetchFromTMDB('discover/movie', [
-        'page' => rand(1, 500),
-        'include_adult' => false
-    ]);
-    
-    return $discover['results'][array_rand($discover['results'])] ?? null;
-}
-
-function getGenres() {
-    $data = fetchFromTMDB('genre/movie/list');
-    if (!$data || !isset($data['genres'])) {
-        file_put_contents('debug.log', "Genre fetch failed!\n", FILE_APPEND);
-        return [];
-    }
-    return $data['genres'];
-}
-
-// Function to fetch data from TMDB API
 function fetchFromTMDB($endpoint, $params = []) {
     $params['api_key'] = TMDB_API_KEY;
     $url = TMDB_BASE_URL . $endpoint . '?' . http_build_query($params);
@@ -44,42 +16,27 @@ function fetchFromTMDB($endpoint, $params = []) {
     return json_decode($response, true);
 }
 
+function getGenres() {
+    $data = fetchFromTMDB('genre/movie/list');
+    return $data['genres'] ?? [];
+}
 
-
-// Get movies by genre
-function getMoviesByGenre($genreId, $page = 1, $sortBy = 'popularity.desc', $year = null, $rating = null) {
-    $params = [
-        'with_genres' => $genreId,
-        'page' => $page,
-        'sort_by' => $sortBy,
+function getMovies($filters) {
+    return fetchFromTMDB('discover/movie', [
+        'with_genres' => $filters['genre'] ?? '',
+        'sort_by' => $filters['sort'] ?? 'popularity.desc',
+        'primary_release_year' => $filters['year'] ?? '',
+        'vote_average.gte' => $filters['rating'] ?? '',
         'include_adult' => false
-    ];
-    
-    if ($year) $params['primary_release_year'] = $year;
-    if ($rating) $params['vote_average.gte'] = $rating;
-    
-    return fetchFromTMDB('discover/movie', $params);
-}
-
-
-// Get movie details
-function getMovieDetails($movieId) {
-    $movie = fetchFromTMDB("movie/$movieId", [
-        'append_to_response' => 'videos,credits'
     ]);
-    
-    return $movie;
 }
 
-// Get trailer URL
-function getTrailerUrl($movie) {
-    if (!empty($movie['videos']['results'])) {
-        foreach ($movie['videos']['results'] as $video) {
-            if ($video['type'] == 'Trailer' && $video['site'] == 'YouTube') {
-                return 'https://www.youtube.com/embed/' . $video['key'];
-            }
-        }
-    }
-    return null;
+function getRandomMovie() {
+    $randomPage = rand(1, 500);
+    $data = fetchFromTMDB('discover/movie', [
+        'page' => $randomPage,
+        'include_adult' => false
+    ]);
+    return $data['results'][array_rand($data['results'])] ?? null;
 }
 ?>
