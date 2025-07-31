@@ -1,0 +1,11 @@
+{
+  "build": {
+    "builder": "nixpacks",
+    "config": {
+      "phpVersion": "8.1"
+    }
+  },
+  "deploy": {
+    "startCommand": "apache2-foreground"
+  }
+}
