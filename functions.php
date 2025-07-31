@@ -44,11 +44,7 @@ function fetchFromTMDB($endpoint, $params = []) {
     return json_decode($response, true);
 }
 
-// Get genres list
-function getGenres() {
-    $data = fetchFromTMDB('genre/movie/list');
-    return $data['genres'] ?? [];
-}
+
 
 // Get movies by genre
 function getMoviesByGenre($genreId, $page = 1, $sortBy = 'popularity.desc', $year = null, $rating = null) {
