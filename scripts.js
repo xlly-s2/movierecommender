@@ -1,113 +1,78 @@
-// Dark mode toggle functionality
-const darkModeToggle = document.createElement('button');
-darkModeToggle.className = 'dark-mode-toggle';
-darkModeToggle.innerHTML = '<i class="fas fa-moon"></i> Dark Mode';
-document.body.appendChild(darkModeToggle);
+document.addEventListener('DOMContentLoaded', async () => {
+  // Load genres
+  const genres = await fetchGenres();
+  const genreSelect = document.getElementById('genre');
+  genres.forEach(genre => {
+    const option = document.createElement('option');
+    option.value = genre.id;
+    option.textContent = genre.name;
+    genreSelect.appendChild(option);
+  });
 
-darkModeToggle.addEventListener('click', () => {
-  document.body.classList.toggle('dark-mode');
-  const isDark = document.body.classList.contains('dark-mode');
-  darkModeToggle.innerHTML = isDark 
-    ? '<i class="fas fa-sun"></i> Light Mode' 
-    : '<i class="fas fa-moon"></i> Dark Mode';
-  localStorage.setItem('darkMode', isDark);
+  // Filter buttons
+  document.getElementById('apply-filters').addEventListener('click', loadMovies);
+  document.getElementById('surprise-me').addEventListener('click', getRandomMovie);
+
+  // Initial load
+  loadMovies();
 });
 
-// Check for saved preference
-if (localStorage.getItem('darkMode') === 'true') {
-  document.body.classList.add('dark-mode');
-  darkModeToggle.innerHTML = '<i class="fas fa-sun"></i> Light Mode';
+async function fetchGenres() {
+  try {
+    const response = await fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${TMDB_API_KEY}`);
+    const data = await response.json();
+    return data.genres || [];
+  } catch (error) {
+    console.error('Error fetching genres:', error);
+    return [];
+  }
 }
 
+async function loadMovies() {
+  const genre = document.getElementById('genre').value;
+  const sort = document.getElementById('sort').value;
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Smooth scroll for cast scroller
-    const castScrollers = document.querySelectorAll('.cast-scroller');
-    castScrollers.forEach(scroller => {
-        let isDown = false;
-        let startX;
-        let scrollLeft;
-        
-        scroller.addEventListener('mousedown', (e) => {
-            isDown = true;
-            startX = e.pageX - scroller.offsetLeft;
-            scrollLeft = scroller.scrollLeft;
-            scroller.style.cursor = 'grabbing';
-        });
-        
-        scroller.addEventListener('mouseleave', () => {
-            isDown = false;
-            scroller.style.cursor = 'grab';
-        });
-        
-        scroller.addEventListener('mouseup', () => {
-            isDown = false;
-            scroller.style.cursor = 'grab';
-        });
-        
-        scroller.addEventListener('mousemove', (e) => {
-            if(!isDown) return;
-            e.preventDefault();
-            const x = e.pageX - scroller.offsetLeft;
-            const walk = (x - startX) * 2;
-            scroller.scrollLeft = scrollLeft - walk;
-        });
-    });
-    
-    // Filter form submission with animation
-    const filterForm = document.getElementById('filter-form');
-    if (filterForm) {
-        filterForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Add loading animation
-            const container = document.querySelector('.container');
-            container.style.opacity = '0.5';
-            container.style.transition = 'opacity 0.3s ease';
-            
-            // Small delay to show the transition
-            setTimeout(() => {
-                this.submit();
-            }, 300);
-        });
-    }
-    
-    // Lazy loading for images
-    const lazyLoadImages = () => {
-        const images = document.querySelectorAll('img[data-src]');
-        const options = {
-            root: null,
-            rootMargin: '0px',
-            threshold: 0.1
-        };
-        
-        const imageObserver = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    img.src = img.dataset.src;
-                    img.removeAttribute('data-src');
-                    observer.unobserve(img);
-                    
-                    // Add fade-in effect when image loads
-                    img.onload = () => {
-                        img.style.opacity = '0';
-                        img.style.transition = 'opacity 0.5s ease';
-                        setTimeout(() => {
-                            img.style.opacity = '1';
-                        }, 50);
-                    };
-                }
-            });
-        }, options);
-        
-        images.forEach(img => imageObserver.observe(img));
-    };
-    
-    lazyLoadImages();
-    
-    // Add smooth scroll to top when navigating
-    window.addEventListener('beforeunload', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-});
+  try {
+    const response = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&sort_by=${sort}&with_genres=${genre}`);
+    const data = await response.json();
+    displayMovies(data.results);
+  } catch (error) {
+    console.error('Error fetching movies:', error);
+  }
+}
+
+function displayMovies(movies) {
+  const container = document.getElementById('movies-container');
+  container.innerHTML = '';
+
+  if (!movies || movies.length === 0) {
+    container.innerHTML = `
+      <div class="no-poster">
+        <i class="fas fa-film"></i>
+        <p>No movies found with these filters</p>
+      </div>
+    `;
+    return;
+  }
+
+  movies.forEach(movie => {
+    const posterPath = movie.poster_path 
+      ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+      : null;
+
+    const card = document.createElement('div');
+    card.className = 'movie-card';
+    card.innerHTML = `
+      <div class="movie-poster">
+        ${posterPath 
+          ? `<img src="${posterPath}" alt="${movie.title}">`
+          : `<i class="fas fa-film"></i><span>No poster</span>`}
+      </div>
+      <div class="movie-info">
+        <h3>${movie.title}</h3>
+        <p>${movie.overview || 'No description available'}</p>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
