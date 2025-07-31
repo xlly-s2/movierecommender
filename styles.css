@@ -8,6 +8,13 @@
     --success-color: #4cc9f0;
     --warning-color: #f8961e;
     --danger-color: #ef233c;
+    --bg-primary: #121212;
+    --bg-secondary: #1e1e1e;
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a0a0;
+    --accent-color: #4361ee;
+    --card-bg: #2d2d2d;
+    
     
     --font-main: 'Poppins', sans-serif;
     --shadow-sm: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
@@ -64,6 +71,47 @@ body {
     font-size: 1.1rem;
     color: var(--gray-color);
     font-weight: 300;
+}
+
+.dark-mode-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+  background: var(--bg-secondary);
+  border: none;
+  color: var(--text-primary);
+  padding: 8px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+body.dark-mode {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.dark-mode .header {
+  background-color: var(--bg-secondary);
+}
+
+.dark-mode .movie-card {
+  background-color: var(--card-bg);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .filter-form {
+  background-color: var(--bg-secondary);
+}
+
+.dark-mode select,
+.dark-mode input {
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+  border-color: #444;
 }
 
 /* Filters */
