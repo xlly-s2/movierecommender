@@ -1,3 +1,25 @@
+// Dark mode toggle functionality
+const darkModeToggle = document.createElement('button');
+darkModeToggle.className = 'dark-mode-toggle';
+darkModeToggle.innerHTML = '<i class="fas fa-moon"></i> Dark Mode';
+document.body.appendChild(darkModeToggle);
+
+darkModeToggle.addEventListener('click', () => {
+  document.body.classList.toggle('dark-mode');
+  const isDark = document.body.classList.contains('dark-mode');
+  darkModeToggle.innerHTML = isDark 
+    ? '<i class="fas fa-sun"></i> Light Mode' 
+    : '<i class="fas fa-moon"></i> Dark Mode';
+  localStorage.setItem('darkMode', isDark);
+});
+
+// Check for saved preference
+if (localStorage.getItem('darkMode') === 'true') {
+  document.body.classList.add('dark-mode');
+  darkModeToggle.innerHTML = '<i class="fas fa-sun"></i> Light Mode';
+}
+
+
 document.addEventListener('DOMContentLoaded', function() {
     // Smooth scroll for cast scroller
     const castScrollers = document.querySelectorAll('.cast-scroller');
