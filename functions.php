@@ -61,22 +61,6 @@ function getMoviesByGenre($genreId, $page = 1, $sortBy = 'popularity.desc', $yea
     return fetchFromTMDB('discover/movie', $params);
 }
 
-// Get random movie
-function getRandomMovie() {
-    $totalPages = 500; // TMDB allows up to page 500
-    $randomPage = rand(1, $totalPages);
-    
-    $data = fetchFromTMDB('discover/movie', [
-        'page' => $randomPage,
-        'include_adult' => false
-    ]);
-    
-    if (!empty($data['results'])) {
-        return $data['results'][array_rand($data['results'])];
-    }
-    
-    return null;
-}
 
 // Get movie details
 function getMovieDetails($movieId) {
