@@ -8,7 +8,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     option.textContent = genre.name;
     genreSelect.appendChild(option);
   });
-
+  // Dark mode toggle
+  document.querySelector('.dark-mode-toggle').addEventListener('click', function() {
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+  });
+  
+  // Check for saved preference
+  if (localStorage.getItem('darkMode') === 'true') {
+    document.body.classList.add('dark-mode');
+  }
   // Filter buttons
   document.getElementById('apply-filters').addEventListener('click', loadMovies);
   document.getElementById('surprise-me').addEventListener('click', getRandomMovie);
