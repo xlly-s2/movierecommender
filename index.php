@@ -3,6 +3,7 @@ require_once 'functions.php';
 
 // Get all genres
 $genres = getGenres();
+file_put_contents('debug.log', "Genres fetched: ".print_r($genres,true)."\n", FILE_APPEND);
 
 // Default values
 $selectedGenre = $_GET['genre'] ?? null;
